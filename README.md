@@ -1,150 +1,203 @@
-Teste Tecnico
-Este repositorio contem a solucao do teste tecnico proposto, desenvolvida em Python, com foco em processamento de dados, validacao, enriquecimento e agregacao, seguindo boas praticas e decisoes tecnicas compativeis com o nivel de estagio.
+📝 Teste Técnico – Intuitive Care
 
-Estrutura do Projeto
+
+Solução do teste técnico desenvolvida por Rayca Rafaelle em Python, com foco em processamento de dados, validação, enriquecimento, agregação e visualização, seguindo boas práticas e decisões técnicas compatíveis com o nível de estágio.
+
+⸻
+
+📂 Estrutura do Projeto
+
 projeto/
 │
 ├── data/
-│   ├── raw/            # Arquivos originais (ZIPs e cadastro da ANS)
-│   ├── extracted/      # CSVs extraidos dos ZIPs
-│   └── processed/      # Arquivos finais processados e Banco de Dados
+│   ├── raw/          # Arquivos originais (ZIPs e cadastro ANS)
+│   ├── extracted/    # CSVs extraídos dos ZIPs
+│   └── processed/    # Arquivos finais processados + DB
 │
-├── backend/            # Servidor API
-│   ├── main.py         # Rotas e configuracoes FastAPI
-│   ├── crud.py         # Logica de banco de dados
-│   └── database.py     # Conexao SQLite
+├── backend/          # Servidor API
+│   ├── main.py       # Rotas e configs FastAPI
+│   ├── crud.py       # Lógica de DB
+│   └── database.py   # Conexão SQLite
 │
 ├── scripts/
 │   ├── extrair_zips.py
 │   ├── transform_data.py
 │   ├── enrich_data.py
-│   └── setup_db.py     # Script de criacao e carga do banco
+│   └── setup_db.py   # Criação e carga do banco
 │
+├── frontend/         # Interface Vue.js 3
+├── postman/          # Coleção Postman
+│   └── collection.json
 ├── README.md
 └── requirements.txt
-Parte 1 – Extracao e Consolidacao dos Dados
-1.1 Extracao dos arquivos ZIP
-O script extrair_zips.py e responsavel por ler os arquivos .zip presentes em data/raw/, organizar a extracao para pastas temporarias e facilitar reprocessamentos futuros sem a necessidade de manipular os arquivos compactados novamente.
 
-1.2 Transformacao e Consolidacao
-O script transform_data.py realiza a leitura em chunks para otimizacao de memoria, padronizacao de colunas, filtragem de despesas (contas iniciadas com 4) e remocao de valores invalidos.
 
-Parte 2 – Validacao, Enriquecimento e Agregacao
-2.1 Validacao de Dados
-Implementacao de regras para CNPJ, valores numericos e campos obrigatorios. CNPJs invalidos sao marcados, mas preservados para evitar perda de dados financeiros relevantes.
+⸻
 
-2.2 Enriquecimento com Dados da ANS
-Join entre a base financeira e o cadastro de Operadoras Ativas via CNPJ, adicionando Registro ANS, Modalidade e UF. Utilizou-se a estrategia de LEFT JOIN para garantir que a base financeira permanecesse integra mesmo em casos de ausencia no cadastro.
 
-Parte 3 – Banco de Dados e Analise SQL
-Nesta etapa, os dados foram modelados em um banco SQLite para garantir a portabilidade e facilidade na execucao do teste.
+<details>
+<summary>1️⃣ Extração e Consolidação dos Dados</summary>
 
-3.1 – Modelagem e Criacao das Tabelas (DDL)
-Optou-se pela normalizacao dos dados, separando o cadastro das operadoras das movimentacoes financeiras consolidadas e agregadas.
 
-Justificativa:
+1.1 Extração
+	•	Script: scripts/extrair_zips.py
+	•	Lê arquivos .zip de data/raw/ e organiza a extração em pastas temporárias.
 
-Evita redundancia de dados cadastrais.
+Justificativa: Permite reprocessamentos futuros sem precisar manipular novamente os arquivos compactados.
 
-Facilita a manutencao e atualizacao de novos periodos financeiros.
+1.2 Transformação
+	•	Script: scripts/transform_data.py
+	•	Operações realizadas:
+	•	Leitura em chunks para otimização de memória.
+	•	Padronização de colunas.
+	•	Filtragem de despesas (contas iniciadas com 4).
+	•	Remoção de valores inválidos.
 
-Melhora a performance de busca por operadoras especificas.
+Justificativa: Garante eficiência, consistência e integridade dos dados antes do enriquecimento.
 
-Parte 4 – API Backend e Integracao
-Foi desenvolvido um servidor utilizando o framework FastAPI para disponibilizar os dados processados para o consumo do frontend, garantindo uma interface padronizada.
+</details>
 
-4.1 – Endpoints da API
-GET /api/operadoras: Listagem com paginacao (page, limit) e busca textual.
 
-GET /api/operadoras/{cnpj}: Detalhes cadastrais de uma operadora especifica.
+<details>
+<summary>2️⃣ Validação, Enriquecimento e Agregação</summary>
 
-GET /api/operadoras/{cnpj}/despesas: Historico financeiro trimestral.
 
-GET /api/estatisticas: Dados agregados (Total de despesas, medias e Top 5 operadoras).
+Validação
+	•	Verificação de campos obrigatórios, CNPJs e valores numéricos.
+	•	CNPJs inválidos são marcados, mas preservados.
 
-Trade-offs Tecnicos - Backend
-4.2.1. Escolha do Framework: FastAPI
-Justificativa: Escolhido pela alta performance, suporte nativo a operacoes assincronas e geracao automatica de documentacao interativa (Swagger/OpenAPI), acelerando o desenvolvimento e testes.
+Justificativa: Evita perda de dados financeiros relevantes, mantendo a integridade da base.
 
-4.2.2. Estrategia de Paginacao: Offset-based
-Justificativa: Abordagem ideal para o volume de dados do desafio, permitindo que o usuario navegue para paginas especificas de forma intuitiva no frontend.
+Enriquecimento
+	•	Join com cadastro de Operadoras Ativas via CNPJ.
+	•	Campos adicionados: Registro ANS, Modalidade e UF.
+	•	Utilização de LEFT JOIN.
 
-4.2.3. Cache vs Queries Diretas: Queries Diretas
-Justificativa: Como o banco e local (SQLite) e os dados sao estaticos apos o processamento, as consultas diretas garantem consistencia total dos dados sem a complexidade de gerenciar invalidaçao de cache.
+Justificativa: Garante que a base financeira permaneça integra, mesmo se algumas operadoras não estiverem no cadastro.
 
-4.2.4. Estrutura de Resposta: Dados + Metadados
-Justificativa: A API retorna a lista de registros junto com o total de registros e metadados de paginacao, permitindo que o frontend controle dinamicamente os componentes de navegacao.
+</details>
 
-Como Executar o Projeto
-Instale as dependencias: pip install -r requirements.txt
 
-Prepare os dados e o banco: python scripts/setup_db.py
+<details>
+<summary>3️⃣ Banco de Dados (SQLite)</summary>
 
-Inicie o servidor: cd backend && uvicorn main:app --reload
 
-Acesse a documentaçao: http://127.0.0.1:8000/docs
+Modelagem
+	•	Dados normalizados: cadastro de operadoras separado das movimentações financeiras.
 
-Consideracoes Finais
-Pipeline construido de forma modular e escalavel.
+Justificativas:
+	•	Evita redundância de dados cadastrais.
+	•	Facilita manutenção e atualização de novos períodos financeiros.
+	•	Melhora performance de buscas por operadoras específicas.
 
-Tratamento de encoding e delimitadores especificos dos arquivos da ANS (latin-1 e ponto e virgula).
+</details>
 
-Decisoes tecnicas documentadas visando clareza e manutençao do codigo.
 
-Desenvolvido por: Rayca Rafaelle
+<details>
+<summary>4️⃣ API Backend (FastAPI)</summary>
 
-Parte 5 – Interface Frontend (Vue.js 3)
-A interface foi desenvolvida para oferecer uma visualização clara e intuitiva dos dados financeiros, permitindo que o usuário identifique tendências e analise operadoras específicas com facilidade.
 
-5.1 – Funcionalidades da Interface
-Painel de Operadoras: Lista paginada com busca em tempo real por CNPJ ou Razão Social.
+Endpoints
 
-Dashboard de Despesas: Gráfico de barras dinâmico (Chart.js) que projeta o histórico financeiro trimestral.
+Endpoint	Descrição
+GET /api/operadoras	Listagem paginada (page, limit) + busca textual
+GET /api/operadoras/{cnpj}	Detalhes de uma operadora
+GET /api/operadoras/{cnpj}/despesas	Histórico financeiro trimestral
+GET /api/estatisticas	Dados agregados (total de despesas, médias, Top 5 operadoras)
 
-Visualização Analítica: Cards com detalhes cadastrais e estados visuais para dados vazios ou carregamento.
+Decisões Técnicas
+	•	Framework: FastAPI
+Alta performance, suporte a operações assíncronas, documentação automática Swagger.
+	•	Paginação: Offset-based
+Intuitiva e eficiente para o volume de dados do desafio.
+	•	Cache vs Queries Diretas: Queries diretas
+Banco local (SQLite) com dados estáticos, garantindo consistência sem complexidade de cache.
+	•	Estrutura de Resposta: Dados + Metadados
+Permite que o frontend controle a navegação e paginamento de forma dinâmica.
 
-Design Responsivo: Layout adaptável para diferentes resoluções utilizando CSS Grid e Flexbox.
+Justificativa: Cada decisão foi tomada visando simplicidade, performance e clareza para manutenção futura.
 
-Trade-offs Técnicos - Frontend
-5.2.1. Gerenciamento de Estado: Composables (Vue 3)
-Justificativa: Para a escala deste projeto, o uso de Pinia ou Vuex traria uma complexidade desnecessária. Utilizei Composables para encapsular a lógica de busca e paginação, mantendo o código limpo, reutilizável e fácil de testar, conforme as recomendações modernas do Vue 3.
+</details>
 
-5.2.2. Estratégia de Busca/Filtro: Híbrido
-Justificativa: A busca inicial é realizada no servidor (Server-side) para garantir que possamos filtrar toda a base de dados. Uma vez que os dados da página atual são carregados, filtros menores de interface são processados no cliente, otimizando a experiência do usuário (UX).
 
-5.2.3. Performance e UX: Tratamento de Estados
-Justificativa: Foram implementados estados de Loading (animações de pulso), Empty States (mensagens amigáveis para buscas sem resultado) e tratamento de erros de rede. Isso evita que o usuário fique confuso caso a API demore a responder ou o CNPJ não possua dados cadastrados.
+<details>
+<summary>5️⃣ Interface Frontend (Vue.js 3)</summary>
 
-5.2.4. Estilização: CSS Puro (Scoped)
-Justificativa: Optei por não utilizar frameworks CSS pesados (como Tailwind ou Bootstrap) para demonstrar domínio sobre fundamentos de CSS3, variáveis de ambiente (Custom Properties) e design responsivo, mantendo o bundle final leve.
 
-Parte 6 – Documentação da API (Postman)
-Para facilitar a validação das rotas, uma coleção completa do Postman foi incluída no repositório.
+Funcionalidades
+	•	Painel de Operadoras: Lista paginada + busca em tempo real por CNPJ ou Razão Social.
+	•	Dashboard de Despesas: Gráfico trimestral dinâmico (Chart.js).
+	•	Visualização Analítica: Cards com detalhes cadastrais e estados visuais.
+	•	Design Responsivo: CSS Grid e Flexbox.
 
-Arquivo: docs/Intuitive_Care_ANS.postman_collection.json
+Trade-offs Técnicos
+	•	Gerenciamento de Estado: Composables
+Evita complexidade desnecessária de Vuex/Pinia em escala pequena.
+	•	Busca/Filtro: Híbrido
+Busca inicial server-side + filtros locais client-side para UX otimizada.
+	•	Performance/UX: Estados de Loading, Empty States e tratamento de erros de rede.
+	•	Estilização: CSS puro (scoped)
+Mantém bundle leve e controle total sobre o design.
 
-Conteúdo: Exemplos de requisições, parâmetros de busca, paginação e exemplos de respostas esperadas (Success/Error).
+Justificativa: Garantir clareza visual, responsividade e experiência do usuário sem sobrecarregar o projeto.
 
-Como Executar o Frontend
-Navegue até a pasta do frontend: cd frontend
+</details>
 
-Instale as dependências: npm install
 
-Inicie o servidor de desenvolvimento: npm run dev
+<details>
+<summary>6️⃣ Documentação da API</summary>
 
-Acesse no navegador: http://localhost:5173 (ou a porta indicada no terminal)
 
-Checklist de Entrega Final ✅
-[x] Scripts de extração e normalização (Python).
+	•	Arquivo Postman: postman/collection.json
+	•	Contém:
+	•	Exemplos de requisições
+	•	Parâmetros de busca e paginação
+	•	Respostas de sucesso e erro
 
-[x] Banco de Dados modelado e populado (SQLite/SQL).
+Justificativa: Permite validação rápida e testes da API sem necessidade do frontend.
 
-[x] API funcional com documentação Swagger (FastAPI).
+</details>
 
-[x] Interface Web responsiva e integrada (Vue.js).
 
-[x] Coleção Postman para testes.
 
-[x] README com justificativas de Trade-offs.
+⸻
 
-Desenvolvido por: Rayca Rafaelle
+⚡ Como Executar
+
+Backend
+
+pip install -r requirements.txt
+python scripts/setup_db.py
+cd backend
+uvicorn main:app --reload
+
+Acesse a documentação Swagger: http://127.0.0.1:8000/docs￼
+
+Frontend
+
+cd frontend
+npm install
+npm run dev
+
+Acesse no navegador: http://localhost:5173￼
+
+⸻
+
+✅ Checklist de Entrega Final
+	•	Scripts de extração e normalização (Python)
+	•	Banco de dados modelado e populado (SQLite/SQL)
+	•	API funcional com documentação Swagger (FastAPI)
+	•	Interface web responsiva e integrada (Vue.js)
+	•	Coleção Postman (postman/collection.json)
+	•	README com justificativas de trade-offs
+
+⸻
+
+🔍 Considerações Finais
+	•	Pipeline modular e escalável.
+	•	Tratamento de encoding (latin-1) e delimitadores (;) específicos da ANS.
+	•	Decisões técnicas documentadas para clareza e manutenção.
+	•	Projeto desenvolvido por Rayca Rafaelle.
+
+
+
