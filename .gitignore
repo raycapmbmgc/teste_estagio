@@ -1,0 +1,20 @@
+# --- PYTHON ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.env
+
+# --- FRONTEND (Node/Vue) ---
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vscode/
+
+
+# --- SISTEMA ---
+.DS_Store
+Thumbs.db
