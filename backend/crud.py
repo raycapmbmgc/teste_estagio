@@ -4,7 +4,7 @@ from database import get_connection
 def query_db(query, params=()):
     conn = get_connection()
     try:
-        # Usamos o pandas para ler o SQL; ele retorna um DataFrame
+        # Usei o pandas para ler o SQL; ele retorna um DataFrame
         df = pd.read_sql_query(query, conn, params=params)
         return df
     finally:
@@ -13,7 +13,7 @@ def query_db(query, params=()):
 def get_operadoras(page: int, limit: int, search: str | None = None):
     offset = (page - 1) * limit
     
-    # Base da Query - Note que os nomes das colunas devem bater com seu CREATE TABLE
+    
     if search:
         search_term = f"%{search}%"
         sql = """
